@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0"
-clap = { version = "4", features = ["derive"] }
-git2 = "0.16"
-chrono = { version = "0.4", features = ["serde"] }
-prettytable = "0.10"
-event_parser = "0.1.1"
+anyhow = "*"
+clap = { version = "*", features = ["derive"] }
+git2 = "*"
+chrono = { version = "*", features = ["serde"] }
+prettytable = "*"
+event_parser = "*"
