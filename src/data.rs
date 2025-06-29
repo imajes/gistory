@@ -1,0 +1,11 @@
+use chrono::{DateTime, FixedOffset};
+
+/// Represents a git commit row for display.
+pub struct CommitRow {
+    pub sha: String,
+    pub url: Option<String>,
+    pub month_year: String,
+    pub date: DateTime<FixedOffset>,
+    pub author: String,
+    pub message: String,
+}
