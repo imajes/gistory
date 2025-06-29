@@ -5,24 +5,21 @@ mod data;
 use clap::Parser;
 use chrono::{Utc, Duration, DateTime};
 use anyhow::Result;
-use prettytable::{Table, row, cell};
-use event_parser::parse;
+use prettytable::{Table, row};
+use event_parser::ParserBuilder;
 
 /// Parses a natural language time range into a (since, until) tuple.
+/// Parses a natural language time range using `event-parser`.
 fn parse_range(input: &str) -> Result<(DateTime<Utc>, DateTime<Utc>)> {
-    // Parse events from the input
-    let events = parse(input)?;
+    let parser = ParserBuilder::default().build()?;
+    let events = parser.parse(input)?;
+    let now = Utc::now();
     if let Some(ev) = events.first() {
-        // Extract start and end times (use start if end is missing)
-        let start = ev.start;
-        let end = ev.end.unwrap_or(start);
-        // Normalize to UTC
-        let since = start.with_timezone(&Utc);
-        let until = end.with_timezone(&Utc);
+        let since = ev.start.with_timezone(&Utc);
+        let until = ev.end.unwrap_or(ev.start).with_timezone(&Utc);
         return Ok((since, until));
     }
     // Fallback: past year
-    let now = Utc::now();
     let since = now - Duration::days(365);
     Ok((since, now))
 }
