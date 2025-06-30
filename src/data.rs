@@ -4,6 +4,7 @@ use chrono::{DateTime, FixedOffset};
 #[derive(Debug)]
 pub struct CommitRow {
     pub sha: String,
+    #[allow(dead_code)]
     pub url: Option<String>,
     pub month_year: String,
     pub date: DateTime<FixedOffset>,
