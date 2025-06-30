@@ -1,5 +1,5 @@
 use anyhow::Result;
-use chrono::{DateTime, FixedOffset, NaiveDateTime, Utc};
+use chrono::{DateTime, FixedOffset, Utc};
 use git2::{Repository, Sort};
 
 use crate::data::CommitRow;
@@ -25,10 +25,11 @@ pub fn load_commits(
         // Convert git2::Time to chrono DateTime<FixedOffset>
         let time = commit.time();
         let secs = time.seconds();
-        let offset = time.offset_minutes();
-        let naive = NaiveDateTime::from_timestamp(secs, 0);
-        let datetime: DateTime<FixedOffset> =
-            DateTime::from_utc(naive, FixedOffset::east(offset * 60));
+        let offset_minutes = time.offset_minutes();
+        let offset = FixedOffset::east_opt(offset_minutes * 60).expect("offset out of range");
+        let datetime: DateTime<FixedOffset> = DateTime::<Utc>::from_timestamp(secs, 0)
+            .expect("timestamp out of range")
+            .with_timezone(&offset);
         let datetime_utc = datetime.with_timezone(&Utc);
 
         if datetime_utc < since || datetime_utc > until {
@@ -36,9 +37,7 @@ pub fn load_commits(
         }
 
         let sha = oid.to_string()[..7].to_string();
-        let url = github_url
-            .as_ref()
-            .map(|base| format!("{}/commit/{}", base, oid));
+        let url = github_url.as_ref().map(|base| format!("{}/commit/{}", base, oid));
         let month_year = datetime.format("%B %Y").to_string();
 
         commits.push(CommitRow {
@@ -58,14 +57,10 @@ fn get_github_remote_url(repo: &Repository) -> Option<String> {
     if let Ok(remote) = repo.find_remote("origin") {
         if let Some(url) = remote.url() {
             if url.starts_with("git@github.com:") {
-                let path = url
-                    .trim_start_matches("git@github.com:")
-                    .trim_end_matches(".git");
+                let path = url.trim_start_matches("git@github.com:").trim_end_matches(".git");
                 return Some(format!("https://github.com/{}", path));
             } else if url.starts_with("https://github.com/") {
-                let path = url
-                    .trim_start_matches("https://github.com/")
-                    .trim_end_matches(".git");
+                let path = url.trim_start_matches("https://github.com/").trim_end_matches(".git");
                 return Some(format!("https://github.com/{}", path));
             }
         }
