@@ -54,6 +54,7 @@ impl Tui {
                     Cell::from(c.month_year.clone()),
                     Cell::from(c.date.format("%m/%d/%y").to_string()),
                     Cell::from(c.author.clone()),
+                    Cell::from(c.message.clone()),
                 ])
                 .style(style)
             });
@@ -65,10 +66,11 @@ impl Tui {
                     Constraint::Length(12),
                     Constraint::Length(10),
                     Constraint::Length(20),
+                    Constraint::Length(30),
                 ],
             )
             .header(
-                Row::new(vec!["SHA", "Month", "Date", "Author"])
+                Row::new(vec!["SHA", "Month", "Date", "Author", "Message"])
                     .style(Style::default().add_modifier(Modifier::BOLD)),
             )
             .block(Block::default().borders(Borders::ALL).title("Commits"));
@@ -83,3 +85,4 @@ impl Tui {
         Ok(())
     }
 }
+
