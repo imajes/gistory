@@ -41,7 +41,7 @@ impl Tui {
             let chunks = Layout::default()
                 .direction(Direction::Horizontal)
                 .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
-                .split(f.size());
+                .split(f.area());
 
             let rows = app.commits().iter().enumerate().map(|(i, c)| {
                 let style = if i == app.selected {
@@ -85,4 +85,3 @@ impl Tui {
         Ok(())
     }
 }
-
