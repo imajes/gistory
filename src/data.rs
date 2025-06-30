@@ -1,6 +1,7 @@
 use chrono::{DateTime, FixedOffset};
 
 /// Represents a git commit row for display.
+#[derive(Debug)]
 pub struct CommitRow {
     pub sha: String,
     pub url: Option<String>,

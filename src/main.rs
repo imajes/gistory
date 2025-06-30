@@ -1,12 +1,15 @@
+mod app;
 mod cli;
-mod gitlog;
 mod data;
+mod gitlog;
+mod tui;
 
-use clap::Parser;
-use chrono::{Utc, Duration, DateTime};
 use anyhow::Result;
-use prettytable::{Table, row};
+use chrono::{DateTime, Duration, Utc};
 use chrono_english::{parse_date_string, parse_duration, Dialect, Interval};
+use clap::Parser;
+use crossterm::event::{self, Event, KeyCode};
+use std::time::Duration as StdDuration;
 
 /// Parses a natural language time range into a (since, until) tuple.
 /// Parses a natural language time range using `chrono-english`.
@@ -52,18 +55,24 @@ fn main() -> Result<()> {
     let repo_path = cli.repo.as_deref().unwrap_or(".");
     let (since, until) = parse_range(&cli.range)?;
     let commits = gitlog::load_commits(repo_path, since, until)?;
+    let mut app = app::App::new(commits);
+    let mut terminal = tui::Tui::new()?;
 
-    let mut table = Table::new();
-    table.add_row(row!["SHA", "Month", "Date", "Author", "Message"]);
-    for commit in commits {
-        table.add_row(row![
-            commit.sha,
-            commit.month_year,
-            commit.date.format("%m/%d/%y").to_string(),
-            commit.author,
-            commit.message
-        ]);
+    loop {
+        terminal.draw(&app)?;
+
+        if event::poll(StdDuration::from_millis(200))? {
+            if let Event::Key(key) = event::read()? {
+                match key.code {
+                    KeyCode::Char('q') => break,
+                    KeyCode::Down => app.next(),
+                    KeyCode::Up => app.previous(),
+                    _ => {}
+                }
+            }
+        }
     }
-    table.printstd();
+
+    terminal.shutdown()?;
     Ok(())
 }

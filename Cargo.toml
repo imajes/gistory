@@ -8,5 +8,6 @@ anyhow = "*"
 clap = { version = "*", features = ["derive"] }
 git2 = "*"
 chrono = { version = "*", features = ["serde"] }
-prettytable = "*"
 chrono-english = "0.1"
+ratatui = "*"
+crossterm = "*"
