@@ -6,20 +6,43 @@ use clap::Parser;
 use chrono::{Utc, Duration, DateTime};
 use anyhow::Result;
 use prettytable::{Table, row};
-use event_parser::ParserBuilder;
+use chrono_english::{parse_date_string, parse_duration, Dialect, Interval};
 
 /// Parses a natural language time range into a (since, until) tuple.
-/// Parses a natural language time range using `event-parser`.
+/// Parses a natural language time range using `chrono-english`.
 fn parse_range(input: &str) -> Result<(DateTime<Utc>, DateTime<Utc>)> {
-    let parser = ParserBuilder::default().build()?;
-    let events = parser.parse(input)?;
     let now = Utc::now();
-    if let Some(ev) = events.first() {
-        let since = ev.start.with_timezone(&Utc);
-        let until = ev.end.unwrap_or(ev.start).with_timezone(&Utc);
+    let input = input.trim();
+    let lower = input.to_lowercase();
+    let dialect = Dialect::Uk;
+
+    if let Some(rest) = lower.strip_prefix("since ") {
+        let since = parse_date_string(rest, now, dialect)?;
+        return Ok((since, now));
+    }
+
+    if let Some(idx) = lower.find(" to ") {
+        let since_str = input[..idx].trim();
+        let until_str = input[idx + 4..].trim();
+        let since = parse_date_string(since_str, now, dialect)?;
+        let until = parse_date_string(until_str, now, dialect)?;
         return Ok((since, until));
     }
-    // Fallback: past year
+
+    if let Ok(interval) = parse_duration(input) {
+        use Interval::*;
+        let since = match interval {
+            Seconds(s) => now + Duration::seconds(s as i64),
+            Days(d) => now + Duration::days(d as i64),
+            Months(m) => now + Duration::days(30 * m as i64),
+        };
+        return Ok((since, now));
+    }
+
+    if let Ok(date) = parse_date_string(input, now, dialect) {
+        return Ok((date, now));
+    }
+
     let since = now - Duration::days(365);
     Ok((since, now))
 }

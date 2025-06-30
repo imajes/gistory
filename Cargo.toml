@@ -9,4 +9,4 @@ clap = { version = "*", features = ["derive"] }
 git2 = "*"
 chrono = { version = "*", features = ["serde"] }
 prettytable = "*"
-event_parser = "*"
+chrono-english = "0.1"
