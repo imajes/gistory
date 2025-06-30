@@ -8,7 +8,8 @@ use ratatui::{
     backend::CrosstermBackend,
     layout::{Constraint, Direction, Layout},
     style::{Modifier, Style},
-    widgets::{Block, Borders, Cell, Paragraph, Row, Table},
+    text::Line,
+    widgets::{Block, Borders, Cell, Paragraph, Row, Table, Wrap},
     Terminal,
 };
 
@@ -39,12 +40,13 @@ impl Tui {
     pub fn draw(&mut self, app: &App) -> std::io::Result<()> {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
-                .direction(Direction::Horizontal)
-                .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+                .direction(Direction::Vertical)
+                .constraints([Constraint::Percentage(70), Constraint::Percentage(30)])
                 .split(f.area());
 
-            let rows = app.commits().iter().enumerate().map(|(i, c)| {
-                let style = if i == app.selected {
+            let rows = app.page_commits().iter().enumerate().map(|(i, c)| {
+                let idx = app.current_page() * App::per_page() + i;
+                let style = if idx == app.selected {
                     Style::default().add_modifier(Modifier::REVERSED)
                 } else {
                     Style::default()
@@ -66,7 +68,7 @@ impl Tui {
                     Constraint::Length(12),
                     Constraint::Length(10),
                     Constraint::Length(20),
-                    Constraint::Length(30),
+                    Constraint::Min(30),
                 ],
             )
             .header(
@@ -75,12 +77,19 @@ impl Tui {
             )
             .block(Block::default().borders(Borders::ALL).title("Commits"));
 
-            f.render_widget(table, chunks[0]);
-
             let msg = app.selected_commit().map(|c| c.message.clone()).unwrap_or_default();
-            let paragraph =
-                Paragraph::new(msg).block(Block::default().borders(Borders::ALL).title("Message"));
-            f.render_widget(paragraph, chunks[1]);
+            let page_info = format!("« ‹ {}/{} › »", app.current_page() + 1, app.page_count());
+            let paragraph = Paragraph::new(msg)
+                .block(
+                    Block::default()
+                        .borders(Borders::ALL)
+                        .title("Message")
+                        .title_bottom(Line::raw(page_info)),
+                )
+                .wrap(Wrap { trim: false });
+            f.render_widget(paragraph, chunks[0]);
+
+            f.render_widget(table, chunks[1]);
         })?;
         Ok(())
     }
