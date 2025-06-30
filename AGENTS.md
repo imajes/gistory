@@ -34,10 +34,38 @@ Key principles:
 - `mod prelude` re-exports common traits, types, and helpers.
 - `mod utils` holds generic helpers; avoid business logic here.
 
-### Tests
+---
 
-- Unit tests go inline in `mod tests` within each file.
-- Integration tests live in `tests/`.
+## 🧪 Testing Instructions
+
+- Run `cargo test` from the project root to execute all unit and integration tests.
+- To run a specific test module: `cargo test module_name`.
+- Use `cargo test -- --nocapture` to see `println!()` or `dbg!()` output during test execution.
+- Add `#[tokio::test]` to test async functions—ensure the `tokio` test feature is enabled in `Cargo.toml`.
+- Place integration tests in the `tests/` directory; each file compiles as a separate crate.
+- Use `cargo nextest run` if available, for parallel and deterministic test execution.
+- After changing public APIs or error flows, update related tests and run the suite again.
+- To run benchmarks (if enabled): `cargo bench`.
+- Fix any failing tests, panics, or warnings before merging a commit.
+- Always run `rustfmt -v` on each rust file after changes are made, to ensure that they meet standards. Use `-v` to ensure you have all the insight you can get. Fix any issues that cannot be automatically resolved.
+- Always add or update tests when changing code—even if nobody explicitly asked.
+
+---
+
+## ✅ Testing Best Practices
+
+- **Use `#[cfg(test)]` modules** inside source files for localized unit coverage.
+- **Structure tests under `mod tests`** and use helper functions to reduce duplication.
+- **Name tests descriptively**, following the pattern `fn does_x_given_y()`.
+- **Avoid `unwrap()` or `expect()`** in tests unless testing panics intentionally.
+- **Assert clearly** using `assert_eq!`, `assert!`, and `matches!` for readability.
+- **Use property-based testing** (`proptest`, `quickcheck`) for input fuzzing and edge case discovery.
+- **Test all error paths**, not just the happy path—especially with `Result<T, E>`.
+- **Prefer `#[should_panic(expected = ...)]`** for known failure conditions, not broad assertions.
+- **Use integration tests** for high-level workflows or cross-module validation.
+- **Group tests by behavior**, not implementation—e.g., `auth_flow.rs`, not `auth.rs`.
+- **Ensure tests are isolated**—no shared mutable state or filesystem dependencies unless sandboxed.
+- **Add regression tests** for fixed bugs, linking to issue numbers or commit hashes for traceability.
 
 ---
 
