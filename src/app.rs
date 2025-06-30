@@ -33,7 +33,35 @@ impl App {
         self.commits.get(self.selected)
     }
 
-    pub fn commits(&self) -> &[CommitRow] {
-        &self.commits
+    /// Returns the zero-based index of the current page.
+    pub fn current_page(&self) -> usize {
+        if self.commits.is_empty() {
+            0
+        } else {
+            self.selected / Self::per_page()
+        }
+    }
+
+    /// Returns the total number of pages.
+    pub fn page_count(&self) -> usize {
+        let per_page = Self::per_page();
+        if self.commits.is_empty() {
+            1
+        } else {
+            (self.commits.len() + per_page - 1) / per_page
+        }
+    }
+
+    /// Items shown on the current page.
+    pub fn page_commits(&self) -> &[CommitRow] {
+        let per_page = Self::per_page();
+        let start = self.current_page() * per_page;
+        let end = usize::min(start + per_page, self.commits.len());
+        &self.commits[start..end]
+    }
+
+    /// Number of commits to display per page.
+    pub const fn per_page() -> usize {
+        10
     }
 }
