@@ -103,6 +103,35 @@ Key principles:
 
 ---
 
+## 🔀 Pull Request Best Practices
+
+- **One topic per PR**: Keep each pull request focused on a single logical change to simplify review and rollback.
+- **Descriptive title**: Start with an issue or ticket number and a concise summary (e.g. `#42: Fix race condition in sync worker`).
+- **Use Conventional Commits**:
+  - **Format**: `<type>(<scope>): <short description>`
+  - **Types**:
+    - `feat` — new feature
+    - `fix` — bug fix
+    - `docs` — documentation only changes
+    - `style` — formatting, missing semi-colons, etc. (no code change)
+    - `refactor` — code change that neither fixes a bug nor adds a feature
+    - `perf` — performance improvement
+    - `test` — adding or updating tests
+    - `chore` — build process, auxiliary tools, libraries
+  - **Scope**: optional, but highly recommended for clarity (e.g. `feat(auth): add JWT support`).
+- **Clear description**: Explain what you changed, why it matters, and any side-effects or migration steps.
+- **Link related issues**: Reference issue numbers, design docs, or RFCs to provide context and traceability.
+- **Include tests**: Add or update unit/integration tests to cover new behavior and edge cases.
+- **Update docs**: Adjust README, CHANGELOG, or inline docs for public API changes or new features.
+- **Run CI locally**: Ensure `cargo test`, `cargo fmt -- --check`, and `cargo clippy` pass before pushing.
+- **Small, incremental commits**: Break large changes into atomic commits with meaningful Conventional-Commit messages.
+- **Request reviewers early**: Tag relevant teammates or teams once the PR is ready for initial feedback.
+- **Address feedback promptly**: Iterate on comments quickly and request re-review when done.
+- **Clean up history**: Squash or rebase commits into logical units that follow the Conventional Commits spec before merge.
+- **Merge only green PRs**: Do not merge until CI is passing and approvals meet repo policy.
+
+---
+
 ## TODO Patterns
 
 Use the following tags in comments to help AI tools prioritize code tasks:
