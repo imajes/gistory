@@ -41,7 +41,7 @@ impl Tui {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
                 .direction(Direction::Vertical)
-                .constraints([Constraint::Percentage(70), Constraint::Percentage(30)])
+                .constraints([Constraint::Percentage(80), Constraint::Percentage(20)])
                 .split(f.area());
 
             let rows = app.page_commits().iter().enumerate().map(|(i, c)| {
@@ -55,6 +55,7 @@ impl Tui {
                     Cell::from(c.sha.clone()),
                     Cell::from(c.month_year.clone()),
                     Cell::from(c.date.format("%m/%d/%y").to_string()),
+                    Cell::from(c.date.format("%H:%M").to_string()),
                     Cell::from(c.author.clone()),
                     Cell::from(c.message.clone()),
                 ])
@@ -67,28 +68,36 @@ impl Tui {
                     Constraint::Length(8),
                     Constraint::Length(12),
                     Constraint::Length(10),
+                    Constraint::Length(8),
                     Constraint::Length(20),
-                    Constraint::Min(30),
+                    Constraint::Min(40),
                 ],
             )
             .header(
-                Row::new(vec!["SHA", "Month", "Date", "Author", "Message"])
+                Row::new(vec!["SHA", "Month", "Date", "Time", "Author", "Message"])
                     .style(Style::default().add_modifier(Modifier::BOLD)),
             )
-            .block(Block::default().borders(Borders::ALL).title("Commits"));
+            .block(
+                Block::default().borders(Borders::ALL).title("Commits").title_bottom(Line::from(
+                    Span::styled(
+                        format!(
+                            "« ‹ {}/{} › » - {} commits",
+                            app.current_page() + 1,
+                            app.page_count(),
+                            app.commit_count()
+                        ),
+                        Style::default().add_modifier(Modifier::BOLD),
+                    ),
+                )),
+            );
 
             let msg = app.selected_commit().map(|c| c.message.clone()).unwrap_or_default();
-            let page_info = format!("« ‹ {}/{} › »", app.current_page() + 1, app.page_count());
             let paragraph = Paragraph::new(msg)
                 .block(
                     Block::default()
                         .borders(Borders::ALL)
                         .title("Message")
-                        .title_alignment(Alignment::Center)
-                        .title_bottom(Line::from(Span::styled(
-                            page_info,
-                            Style::default().add_modifier(Modifier::BOLD),
-                        ))),
+                        .title_alignment(Alignment::Center),
                 )
                 .wrap(Wrap { trim: false });
             f.render_widget(table, chunks[0]);
