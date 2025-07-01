@@ -48,7 +48,7 @@ impl App {
         if self.commits.is_empty() {
             1
         } else {
-            (self.commits.len() + per_page - 1) / per_page
+            self.commits.len().div_ceil(per_page)
         }
     }
 
