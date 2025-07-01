@@ -62,6 +62,11 @@ impl App {
 
     /// Number of commits to display per page.
     pub const fn per_page() -> usize {
-        25
+        30
+    }
+
+    /// Total number of commits loaded.
+    pub fn commit_count(&self) -> usize {
+        self.commits.len()
     }
 }

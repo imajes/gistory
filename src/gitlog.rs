@@ -45,7 +45,7 @@ pub fn load_commits(
             url,
             month_year,
             date: datetime,
-            author: commit.author().to_string(),
+            author: commit.author().name().unwrap_or("").to_string(),
             message: commit.message().unwrap_or("").to_string(),
         });
     }
