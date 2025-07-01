@@ -81,6 +81,7 @@ fn main() -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono::Datelike;
 
     #[test]
     fn parse_range_defaults_to_last_year() {
@@ -92,5 +93,13 @@ mod tests {
     fn parse_range_since_keyword() {
         let (since, until) = parse_range("since yesterday").unwrap();
         assert!(until > since);
+    }
+
+    #[test]
+    fn parse_range_with_explicit_range() {
+        let (since, until) = parse_range("2020-01-01 to 2020-01-10").unwrap();
+        assert!(until > since);
+        assert_eq!(since.year(), 2020);
+        assert_eq!(until.year(), 2020);
     }
 }
