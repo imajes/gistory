@@ -62,6 +62,6 @@ impl App {
 
     /// Number of commits to display per page.
     pub const fn per_page() -> usize {
-        10
+        25
     }
 }

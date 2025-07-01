@@ -6,9 +6,9 @@ use crossterm::{
 };
 use ratatui::{
     backend::CrosstermBackend,
-    layout::{Constraint, Direction, Layout},
+    layout::{Alignment, Constraint, Direction, Layout},
     style::{Modifier, Style},
-    text::Line,
+    text::{Line, Span},
     widgets::{Block, Borders, Cell, Paragraph, Row, Table, Wrap},
     Terminal,
 };
@@ -84,12 +84,16 @@ impl Tui {
                     Block::default()
                         .borders(Borders::ALL)
                         .title("Message")
-                        .title_bottom(Line::raw(page_info)),
+                        .title_alignment(Alignment::Center)
+                        .title_bottom(Line::from(Span::styled(
+                            page_info,
+                            Style::default().add_modifier(Modifier::BOLD),
+                        ))),
                 )
                 .wrap(Wrap { trim: false });
-            f.render_widget(paragraph, chunks[0]);
+            f.render_widget(table, chunks[0]);
 
-            f.render_widget(table, chunks[1]);
+            f.render_widget(paragraph, chunks[1]);
         })?;
         Ok(())
     }
