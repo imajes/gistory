@@ -18,7 +18,7 @@ cargo run -- "this month"
 cargo run -- "jan 1 to feb 15" --repo /path/to/repo
 ```
 
-Use the arrow keys to move through the list. Press `q` to quit.
+Use the arrow keys to move through the list. Press `q`, `Esc`, or `Ctrl-C` to quit.
 
 ## Features
 
